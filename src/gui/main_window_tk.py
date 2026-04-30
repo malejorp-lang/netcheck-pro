@@ -205,7 +205,7 @@ class MainWindow:
         self._build_content(self._scroll_frame)
 
     def _build_content(self, parent):
-        pad = {"padx": 20, "pady": 0}
+        pad = {"padx": 20}
 
         # ── Fila 1: estado LAN / WAN / Score ─────────────────
         row1 = tk.Frame(parent, bg=C["bg"])
