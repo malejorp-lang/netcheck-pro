@@ -5,14 +5,12 @@ on:
     branches: [ main ]
     tags:
       - 'v*'
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:   # Permite ejecutar manualmente desde GitHub
+  workflow_dispatch:
 
 jobs:
   build-windows:
     runs-on: windows-latest
-    
+
     steps:
       - name: Checkout codigo
         uses: actions/checkout@v4
@@ -35,55 +33,51 @@ jobs:
             --windowed `
             --name "NetCheckPro" `
             --uac-admin `
+            --paths "." `
             --add-data "core;core" `
             --add-data "gui;gui" `
             --hidden-import tkinter `
             --hidden-import tkinter.ttk `
             --hidden-import tkinter.messagebox `
+            --hidden-import threading `
+            --hidden-import subprocess `
+            --hidden-import socket `
+            --hidden-import statistics `
+            --hidden-import concurrent.futures `
+            --hidden-import core `
             --hidden-import core.network `
             --hidden-import core.analyzer `
             --hidden-import core.correlator `
             --hidden-import core.profiler `
+            --hidden-import gui `
             --hidden-import gui.main_window_tk `
+            --collect-all tkinter `
             entry.py
 
-      - name: Verificar que el .exe existe
+      - name: Verificar exe
         run: |
           if (Test-Path "src/dist/NetCheckPro.exe") {
             $size = (Get-Item "src/dist/NetCheckPro.exe").length / 1MB
-            Write-Host "NetCheckPro.exe generado correctamente: $([math]::Round($size,1)) MB"
+            Write-Host "OK: NetCheckPro.exe generado - $([math]::Round($size,1)) MB"
           } else {
-            Write-Host "ERROR: El .exe no fue generado"
+            Write-Host "ERROR: exe no generado"
             exit 1
           }
 
-      # Subir .exe como artifact descargable en cada build
-      - name: Subir artifact (build normal)
+      - name: Subir artifact
         uses: actions/upload-artifact@v4
         with:
           name: NetCheckPro-Windows-x64
           path: src/dist/NetCheckPro.exe
           retention-days: 30
 
-      # Crear Release oficial cuando se hace push de un tag v*
-      - name: Crear Release en GitHub
+      - name: Crear Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
           name: NetCheck Pro ${{ github.ref_name }}
           body: |
             ## NetCheck Pro ${{ github.ref_name }}
-            
-            ### Descarga
-            Descarga `NetCheckPro.exe` y ejecútalo directamente.
-            No requiere instalación ni dependencias.
-            
-            ### Requisitos
-            - Windows 10 / 11
-            - Ejecutar como Administrador (lo solicita automáticamente)
-            
-            ### Cambios
-            Ver [CHANGELOG.md](CHANGELOG.md)
+            Descarga NetCheckPro.exe y ejecuta directamente.
+            No requiere instalacion ni Python.
           files: src/dist/NetCheckPro.exe
-          draft: false
-          prerelease: false
