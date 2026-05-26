@@ -9,7 +9,25 @@ Se crea automaticamente en AppData del usuario.
 import sqlite3, os, json
 from datetime import datetime, date
 
-DB_DIR  = os.path.join(os.environ.get("APPDATA", "C:\\Temp"), "NetCheckPro")
+# Intentar AppData primero, si falla usar carpeta del ejecutable
+try:
+    _base = os.environ.get("APPDATA", "")
+    if not _base:
+        raise ValueError("Sin APPDATA")
+    DB_DIR = os.path.join(_base, "NetCheckPro")
+    os.makedirs(DB_DIR, exist_ok=True)
+    # Verificar que tenemos permisos de escritura
+    _test = os.path.join(DB_DIR, ".test")
+    open(_test, "w").close()
+    os.remove(_test)
+except Exception:
+    # Fallback: carpeta junto al ejecutable
+    DB_DIR = os.path.join(
+        os.path.dirname(os.path.abspath(
+            sys.executable if getattr(sys, "frozen", False) else __file__
+        )), "data"
+    )
+
 DB_PATH = os.path.join(DB_DIR, "netcheck.db")
 
 
