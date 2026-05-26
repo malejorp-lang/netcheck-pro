@@ -60,6 +60,16 @@ def main():
     from core.profiler      import get_system_profile
     from gui.main_window_tk import MainWindow
 
+    # Inicializar logger y base de datos antes de lanzar la UI
+    try:
+        from storage.logger import log_info, log_error
+        from storage.database import initialize
+        log_info("NetCheck Pro iniciando...")
+        initialize()
+        log_info("Base de datos inicializada.")
+    except Exception as e:
+        pass  # No bloquear el arranque si falla el storage
+
     window = MainWindow()
     window.show()
 

@@ -361,6 +361,70 @@ class MainWindow:
 
     def _on_report(self, report: DiagnosticReport):
         self._report = report
+
+        # Guardar en base de datos
+        try:
+            from storage.database import (
+                save_snapshot, register_daily_diagnostic,
+                calculate_and_save_baseline, get_snapshot_count,
+                unlock_achievement, get_current_streak
+            )
+            from storage.logger import log_diagnostic, log_alert
+            from storage.achievements_def import check_achievements
+            p = self._profile
+            m = self._metrics
+            snap = {
+                "timestamp":       datetime.datetime.now().isoformat(),
+                "local_ip":        p.local_ip if p else "N/A",
+                "gateway":         p.gateway if p else "N/A",
+                "dns_primary":     p.dns_servers[0] if p and p.dns_servers else "N/A",
+                "connection_type": "WiFi" if (p and p.is_wifi) else "Ethernet",
+                "adapter_name":    p.adapter_name if p else "N/A",
+                "latency_lan_ms":  m.lan.avg_ms if m and m.lan and m.lan.reachable else 0.0,
+                "latency_wan_ms":  m.wan.avg_ms if m and m.wan and m.wan.reachable else 0.0,
+                "jitter_ms":       m.wan.jitter_ms if m and m.wan and m.wan.reachable else 0.0,
+                "packet_loss_pct": m.wan.loss_pct if m and m.wan else 0.0,
+                "download_mbps":   0.0,
+                "upload_mbps":     0.0,
+                "lan_reachable":   1 if (m and m.lan and m.lan.reachable) else 0,
+                "wan_reachable":   1 if (m and m.wan and m.wan.reachable) else 0,
+                "wifi_ssid":       p.wifi_ssid if p and p.is_wifi else None,
+                "wifi_signal_dbm": p.wifi_signal if p and p.is_wifi else None,
+                "wifi_channel":    None,
+                "wifi_band":       None,
+                "health_score":    report.connection_quality_score,
+                "lan_status":      report.lan_status,
+                "wan_status":      report.wan_status,
+                "primary_finding": report.primary_finding,
+                "recommendation":  report.recommendation,
+            }
+            save_snapshot(snap)
+            register_daily_diagnostic(report.connection_quality_score)
+            total = get_snapshot_count()
+            if total % 10 == 0:
+                calculate_and_save_baseline()
+            log_diagnostic(
+                report.connection_quality_score,
+                report.lan_status,
+                report.wan_status,
+                report.primary_finding
+            )
+            for f in report.secondary_findings:
+                log_alert(f.severity.value, f.title, f.detail)
+            streak = get_current_streak()
+            hour = datetime.datetime.now().hour
+            to_unlock = check_achievements(
+                snapshot_count=total, streak=streak,
+                health_score=report.connection_quality_score,
+                download_mbps=0.0,
+                jitter_ms=snap["jitter_ms"],
+                wifi_band="", hour=hour, wizard_uses=0
+            )
+            for ach_id in to_unlock:
+                unlock_achievement(ach_id)
+        except Exception:
+            pass
+
         def update():
             self._lan_panel.set_status(report.lan_status)
             if self._metrics and self._metrics.lan and self._metrics.lan.reachable:
