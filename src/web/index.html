@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veloce - Test de Velocidad de Red de Alta Precisión</title>
+    <meta name="description" content="Mide tu velocidad de descarga, subida, ping y jitter en tiempo real con este test de red rápido y preciso.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="background-glows">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+        <div class="glow glow-3"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo-area">
+                <div class="logo-icon-wrapper">
+                    <i data-lucide="activity" class="logo-icon"></i>
+                </div>
+                <div>
+                    <h1 class="logo-text">Veloce</h1>
+                    <p class="logo-subtext">TEST DE RED PREMIUM</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <span class="status-indicator-badge disconnected" id="status-badge">
+                    <span class="status-dot"></span>
+                    <span class="status-label">Listo</span>
+                </span>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="app-main">
+            <!-- Left Panel: Speedometer & Controls -->
+            <section class="panel-left">
+                <div class="glass-card main-test-card">
+                    <!-- Gauge Container -->
+                    <div class="gauge-outer-container">
+                        <div class="radar-pulse" id="radar-pulse"></div>
+                        <div class="gauge-wrapper">
+                            <svg class="gauge-svg" viewBox="0 0 200 200">
+                                <!-- Background Track -->
+                                <circle class="gauge-track" cx="100" cy="100" r="85"></circle>
+                                <!-- Download Progress -->
+                                <circle class="gauge-progress download-progress-bar" id="gauge-download" cx="100" cy="100" r="85"></circle>
+                                <!-- Upload Progress -->
+                                <circle class="gauge-progress upload-progress-bar" id="gauge-upload" cx="100" cy="100" r="85"></circle>
+                            </svg>
+
+                            <!-- Central Text Panel -->
+                            <div class="gauge-content">
+                                <span class="gauge-phase" id="gauge-phase">PREPARADO</span>
+                                <div class="gauge-value-wrapper">
+                                    <span class="gauge-value" id="gauge-value">0.00</span>
+                                </div>
+                                <span class="gauge-unit" id="gauge-unit">Mbps</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main Action Button -->
+                    <div class="control-area">
+                        <button class="btn btn-primary btn-lg" id="btn-start" aria-label="Iniciar prueba de velocidad">
+                            <i data-lucide="play" class="btn-icon"></i>
+                            <span>INICIAR TEST</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Panel: Results & Analytics -->
+            <section class="panel-right">
+                <!-- Metrics Grid -->
+                <div class="metrics-grid">
+                    <!-- Download Card -->
+                    <div class="glass-card metric-card download" id="card-download">
+                        <div class="metric-header">
+                            <div class="metric-title-wrapper">
+                                <i data-lucide="download" class="metric-icon"></i>
+                                <h3>Descarga</h3>
+                            </div>
+                            <span class="metric-status" id="download-status">Esperando</span>
+                        </div>
+                        <div class="metric-body">
+                            <span class="metric-val" id="val-download">0.00</span>
+                            <span class="metric-unit">Mbps</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="progress-download"></div>
+                        </div>
+                    </div>
+
+                    <!-- Upload Card -->
+                    <div class="glass-card metric-card upload" id="card-upload">
+                        <div class="metric-header">
+                            <div class="metric-title-wrapper">
+                                <i data-lucide="upload" class="metric-icon"></i>
+                                <h3>Subida</h3>
+                            </div>
+                            <span class="metric-status" id="upload-status">Esperando</span>
+                        </div>
+                        <div class="metric-body">
+                            <span class="metric-val" id="val-upload">0.00</span>
+                            <span class="metric-unit">Mbps</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="progress-upload"></div>
+                        </div>
+                    </div>
+
+                    <!-- Ping Card -->
+                    <div class="glass-card metric-card ping" id="card-ping">
+                        <div class="metric-header">
+                            <div class="metric-title-wrapper">
+                                <i data-lucide="navigation" class="metric-icon"></i>
+                                <h3>Ping (Latencia)</h3>
+                            </div>
+                        </div>
+                        <div class="metric-body">
+                            <span class="metric-val" id="val-ping">-</span>
+                            <span class="metric-unit">ms</span>
+                        </div>
+                    </div>
+
+                    <!-- Jitter Card -->
+                    <div class="glass-card metric-card jitter" id="card-jitter">
+                        <div class="metric-header">
+                            <div class="metric-title-wrapper">
+                                <i data-lucide="shuffle" class="metric-icon"></i>
+                                <h3>Jitter</h3>
+                            </div>
+                        </div>
+                        <div class="metric-body">
+                            <span class="metric-val" id="val-jitter">-</span>
+                            <span class="metric-unit">ms</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info & Graph Area -->
+                <div class="network-details-section">
+                    <!-- Real-time Chart Card -->
+                    <div class="glass-card chart-card">
+                        <div class="card-title-wrapper">
+                            <i data-lucide="trending-up" class="card-title-icon"></i>
+                            <h3>Gráfica de Rendimiento</h3>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="speed-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Net details -->
+                    <div class="glass-card details-card">
+                        <div class="card-title-wrapper">
+                            <i data-lucide="globe" class="card-title-icon"></i>
+                            <h3>Detalles de la Red</h3>
+                        </div>
+
+                        <div class="details-list">
+                            <div class="detail-item">
+                                <span class="detail-label">IP Pública</span>
+                                <span class="detail-value" id="info-ip">Cargando...</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Proveedor (ISP)</span>
+                                <span class="detail-value" id="info-isp">Cargando...</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Ubicación</span>
+                                <span class="detail-value" id="info-location">Cargando...</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Servidor</span>
+                                <span class="detail-value" id="info-server">Cargando...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Diagnostics Summary (Shows at the end) -->
+                <div class="glass-card diagnosis-card hidden" id="card-diagnosis">
+                    <div class="diagnosis-header">
+                        <div class="diagnosis-title">
+                            <i data-lucide="sparkles" class="diagnosis-icon text-warning animate-pulse"></i>
+                            <h3>Análisis de Conexión</h3>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" id="btn-share" title="Copiar resultados al portapapeles">
+                            <i data-lucide="copy" class="btn-icon"></i>
+                            <span>Copiar Resultados</span>
+                        </button>
+                    </div>
+                    <p class="diagnosis-text" id="diagnosis-text">Midiendo tu red...</p>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>Veloce v1.0.0 &bull; NetCheck Pro &bull; Infraestructura cortesía de Cloudflare</p>
+        </footer>
+    </div>
+
+    <!-- Main JavaScript Logic -->
+    <script src="app.js"></script>
+</body>
+</html>

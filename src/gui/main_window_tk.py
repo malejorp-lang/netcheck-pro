@@ -21,6 +21,7 @@ from core.network import NetworkProfile, get_network_profile
 from core.analyzer import NetworkMetrics, measure_all
 from core.correlator import DiagnosticReport, Severity, run_diagnosis
 from core.profiler  import SystemProfile, get_system_profile
+from gui.speedtest_panel import SpeedTestPanel
 
 # ── Paleta de colores ────────────────────────────────────────────
 C = {
@@ -263,7 +264,11 @@ class MainWindow:
 
         # ── Fila 4: diagnóstico ───────────────────────────────
         self._diag_panel = DiagnosticPanel(parent)
-        self._diag_panel.pack(fill="x", **pad, pady=(12, 20))
+        self._diag_panel.pack(fill="x", **pad, pady=(12, 0))
+
+        # ── Fila 5: Veloce – Test de Velocidad ────────────────
+        self._speed_panel = SpeedTestPanel(parent)
+        self._speed_panel.pack(fill="x", **pad, pady=(12, 20))
 
     def _build_footer(self):
         sep = tk.Frame(self.root, bg=C["border"], height=1)

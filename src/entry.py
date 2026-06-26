@@ -58,6 +58,7 @@ def main():
     from core.analyzer      import measure_all
     from core.correlator    import run_diagnosis
     from core.profiler      import get_system_profile
+    from core               import web_server
     from gui.main_window_tk import MainWindow
 
     # Inicializar logger y base de datos antes de lanzar la UI
@@ -69,6 +70,16 @@ def main():
         log_info("Base de datos inicializada.")
     except Exception as e:
         pass  # No bloquear el arranque si falla el storage
+
+    # Iniciar servidor HTTP embebido para Veloce
+    try:
+        from storage.logger import log_info
+        if web_server.start():
+            log_info(f"Servidor Veloce activo en {web_server.get_server_url()}")
+        else:
+            log_info("No se pudo iniciar el servidor Veloce (puerto ocupado o archivos no encontrados).")
+    except Exception:
+        pass  # No bloquear el arranque si falla el servidor web
 
     window = MainWindow()
     window.show()

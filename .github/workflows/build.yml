@@ -36,6 +36,7 @@ jobs:
             --paths "." `
             --add-data "core;core" `
             --add-data "gui;gui" `
+            --add-data "web;web" `
             --hidden-import tkinter `
             --hidden-import tkinter.ttk `
             --hidden-import tkinter.messagebox `
@@ -49,8 +50,10 @@ jobs:
             --hidden-import core.analyzer `
             --hidden-import core.correlator `
             --hidden-import core.profiler `
+            --hidden-import core.web_server `
             --hidden-import gui `
             --hidden-import gui.main_window_tk `
+            --hidden-import gui.speedtest_panel `
             --collect-all tkinter `
             entry.py
 
